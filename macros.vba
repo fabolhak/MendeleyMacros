@@ -62,16 +62,16 @@ Sub GAUG_createHyperlinksForCitationsAPA()
         'checks if the section has text with style "Titre de dernière section"
         '(it is a section not belonging to any chapter after the sections of parts and chapters)
         blnFound = False
-        With documentSection.Range.Find
+        With documentSection.range.Find
             .Style = "Titre de dernière section"
             .Execute
             blnFound = .Found
         End With
 
         'checks if the bibliography is in this section
-        If blnFound Then
+        If blnFound Or True Then
             'checks all fields
-            For Each sectionField In documentSection.Range.Fields
+            For Each sectionField In documentSection.range.Fields
                 'if it is the bibliography
                 If sectionField.Type = wdFieldAddin And Trim(sectionField.Code) = "ADDIN Mendeley Bibliography CSL_BIBLIOGRAPHY" Then
                     'start the numbering
@@ -110,7 +110,7 @@ Sub GAUG_createHyperlinksForCitationsAPA()
                                 'creates the bookmark
                                 Selection.Bookmarks.Add _
                                     Name:="SignetBibliographie_" & Format(CStr(intRefereceNumber), "00#"), _
-                                    Range:=Selection.Range
+                                    range:=Selection.range
                             End If
 
                             'continues with the next number
@@ -165,7 +165,7 @@ Sub GAUG_createHyperlinksForCitationsAPA()
     'checks all sections
     For Each documentSection In ActiveDocument.Sections
         'checks all fields
-        For Each sectionField In documentSection.Range.Fields
+        For Each sectionField In documentSection.range.Fields
             'if it is a citation
             If sectionField.Type = wdFieldAddin And Left(sectionField.Code, 18) = "ADDIN CSL_CITATION" Then
 
@@ -357,7 +357,7 @@ Sub GAUG_createHyperlinksForCitationsAPA()
                                 '    Text:="REF " & Chr(34) & "SignetBibliographie_" & Format(CStr(i), "00#") & Chr(34) & " \h", _
                                 '    PreserveFormatting:=True
                                 'better to use normal hyperlink:
-                                Selection.Hyperlinks.Add Anchor:=Selection.Range, _
+                                Selection.Hyperlinks.Add Anchor:=Selection.range, _
                                     Address:="", SubAddress:="SignetBibliographie_" & Format(CStr(i), "00#"), _
                                     ScreenTip:=""
 
@@ -468,16 +468,16 @@ Sub GAUG_createHyperlinksForCitationsIEEE()
         'checks if the section has text with style "Titre de dernière section"
         '(it is a section not belonging to any chapter after the sections of parts and chapters)
         blnFound = False
-        With documentSection.Range.Find
+        With documentSection.range.Find
             .Style = "Titre de dernière section"
             .Execute
             blnFound = .Found
         End With
 
         'checks if the bibliography is in this section
-        If blnFound Then
+        If blnFound Or True Then
             'checks all fields
-            For Each sectionField In documentSection.Range.Fields
+            For Each sectionField In documentSection.range.Fields
                 'if it is the bibliography
                 If sectionField.Type = wdFieldAddin And Trim(sectionField.Code) = "ADDIN Mendeley Bibliography CSL_BIBLIOGRAPHY" Then
                     'start the numbering
@@ -512,7 +512,7 @@ Sub GAUG_createHyperlinksForCitationsIEEE()
                             'creates the bookmark
                             Selection.Bookmarks.Add _
                                 Name:="SignetBibliographie_" & Format(CStr(intRefereceNumber), "00#"), _
-                                Range:=Selection.Range
+                                range:=Selection.range
                         End If
 
                         'continues with the next number
@@ -537,7 +537,7 @@ Sub GAUG_createHyperlinksForCitationsIEEE()
     Set objRegExpCitation = New RegExp
     'sets the pattern to match every citation entry in current field
     'it should be "[" + Number + "]"
-    objRegExpCitation.Pattern = "\[[0-9]+\]"
+    objRegExpCitation.Pattern = "\[[0-9]+"
     'sets case insensitivity
     objRegExpCitation.IgnoreCase = False
     'sets global applicability
@@ -546,7 +546,7 @@ Sub GAUG_createHyperlinksForCitationsIEEE()
     'checks all sections
     For Each documentSection In ActiveDocument.Sections
         'checks all fields
-        For Each sectionField In documentSection.Range.Fields
+        For Each sectionField In documentSection.range.Fields
             'if it is a citation
             If sectionField.Type = wdFieldAddin And Left(sectionField.Code, 18) = "ADDIN CSL_CITATION" Then
 
@@ -562,12 +562,13 @@ Sub GAUG_createHyperlinksForCitationsIEEE()
                     For Each objMatchCitation In colMatchesCitation
                         'gets the citation number as integer
                         'this will also eliminate leading zeros in numbers (in case of manual modifications)
-                        intCitationNumber = CInt(Mid(objMatchCitation.Value, 2, Len(objMatchCitation.Value) - 2))
+                        intCitationNumber = CInt(Mid(objMatchCitation.Value, 2, Len(objMatchCitation.Value) - 1))
 
                         'to make sure the citation number as text is the same as numeric
                         'and that the citation number is in the bibliography
-                        If (("[" & CStr(intCitationNumber) & "]") = objMatchCitation.Value) And (intCitationNumber > 0 And intCitationNumber < intRefereceNumber) Then
+                        If (("[" & CStr(intCitationNumber)) = objMatchCitation.Value) And (intCitationNumber > 0 And intCitationNumber < intRefereceNumber) Then
                             blnCitationNumberFound = True
+                            
                         Else
                             blnCitationNumberFound = False
                         End If
@@ -581,7 +582,7 @@ Sub GAUG_createHyperlinksForCitationsIEEE()
                             With Selection.Find
                                 .Forward = True
                                 .Wrap = wdFindStop
-                                .Text = "[" & CStr(intCitationNumber) & "]"
+                                .Text = "[" & CStr(intCitationNumber)
                                 .Execute
                                 blnReferenceNumberFound = .Found
                             End With
@@ -590,7 +591,7 @@ Sub GAUG_createHyperlinksForCitationsIEEE()
                             If Not blnIncludeSquareBracketsInHyperlinks Then
                                 'restricts the selection to only the number
                                 Selection.MoveStart Unit:=wdCharacter, Count:=1
-                                Selection.MoveEnd Unit:=wdCharacter, Count:=-1
+                                Selection.MoveEnd Unit:=wdCharacter, Count:=0
                             End If
 
                             'a cross-reference is not a good idea, it changes the text in citation (or may delete citation):
@@ -599,7 +600,7 @@ Sub GAUG_createHyperlinksForCitationsIEEE()
                             '    Text:="REF " & Chr(34) & "SignetBibliographie_" & Format(CStr(intCitationNumber), "00#") & Chr(34) & " \h", _
                             '    PreserveFormatting:=True
                             'better to use normal hyperlink:
-                            Selection.Hyperlinks.Add Anchor:=Selection.Range, _
+                            Selection.Hyperlinks.Add Anchor:=Selection.range, _
                                 Address:="", SubAddress:="SignetBibliographie_" & Format(CStr(intCitationNumber), "00#"), _
                                 ScreenTip:=""
                         Else
@@ -694,7 +695,7 @@ Sub GAUG_removeHyperlinksForCitations(Optional ByVal strTypeOfExecution As Strin
 '*****************************
     'checks all sections
     For Each documentSection In ActiveDocument.Sections
-        For Each sectionField In documentSection.Range.Fields
+        For Each sectionField In documentSection.range.Fields
             'if it is a citation
             If sectionField.Type = wdFieldAddin And Left(sectionField.Code, 18) = "ADDIN CSL_CITATION" Then
                 sectionField.Select
@@ -708,7 +709,7 @@ Sub GAUG_removeHyperlinksForCitations(Optional ByVal strTypeOfExecution As Strin
                         'deletes all hyperlinks
                         For i = selectionHyperlinks.Count To 1 Step -1
                             'this method produces errors if the hyperlinks include the square brackets in IEEE
-                            If Left(selectionHyperlinks(1).Range.Text, 1) = "[" Then
+                            If Left(selectionHyperlinks(1).range.Text, 1) = "[" Then
                                 MsgBox "There was an error removing the hyperlinks because they include the square brackets." & vbCrLf & _
                                 "Microsoft Word does not like them this way." & vbCrLf & vbCrLf & _
                                 "Please, use the macro GAUG_removeHyperlinksForCitations() with argument " & vbCrLf & _
@@ -747,15 +748,15 @@ Sub GAUG_removeHyperlinksForCitations(Optional ByVal strTypeOfExecution As Strin
         'checks if the section has text with style "Titre de dernière section"
         '(it is a section not belonging to any chapter after the sections of parts and chapters)
         blnFound = False
-        With documentSection.Range.Find
+        With documentSection.range.Find
             .Style = "Titre de dernière section"
             .Execute
             blnFound = .Found
         End With
 
         'checks if the bibliography is in this section
-        If blnFound Then
-            For Each sectionField In documentSection.Range.Fields
+        If blnFound Or True Then
+            For Each sectionField In documentSection.range.Fields
                 'if it is the bibliography
                 If sectionField.Type = wdFieldAddin And Trim(sectionField.Code) = "ADDIN Mendeley Bibliography CSL_BIBLIOGRAPHY" Then
                     sectionField.Select
@@ -973,7 +974,7 @@ Function refreshDocument(Optional openingDocument As Boolean = False) As Boolean
     
     Dim markName As String
     
-    Dim thisField As field
+    Dim thisField As Field
 
     Dim mark
 
@@ -983,7 +984,7 @@ Function refreshDocument(Optional openingDocument As Boolean = False) As Boolean
     For Each mark In marks
         If citationNumber Mod 25 = 0 Then
             Call showStatusBarMessage("Mendeley is preparing to format your citations... (" & _
-                Round(100 * citationNumber / marks.count) & "%)")
+                Round(100 * citationNumber / marks.Count) & "%)")
         End If
 
         Set thisField = mark
@@ -992,7 +993,7 @@ Function refreshDocument(Optional openingDocument As Boolean = False) As Boolean
         
         If startsWith(markName, "ref Mendeley") Then
             markName = Right(markName, Len(markName) - 4)
-            thisField.code.Text = markName
+            thisField.Code.Text = markName
         End If
         
         If isMendeleyCitationField(markName) Then
@@ -1030,7 +1031,7 @@ Function refreshDocument(Optional openingDocument As Boolean = False) As Boolean
         Dim errorCitationIndex As Long
         errorCitationIndex = mendeleyApiClient().lastErrorCitationIndex()
         If errorCitationIndex <> -1 Then
-            Dim errorField As field
+            Dim errorField As Field
             Dim citationIndex As Long
             citationIndex = mendeleyApiClient().lastErrorCitationIndex() + 1
             Set errorField = marks(citationIndex)
@@ -1056,7 +1057,7 @@ Function refreshDocument(Optional openingDocument As Boolean = False) As Boolean
         
         If citationNumber Mod 15 = 0 Then
             Call showStatusBarMessage("Mendeley is updating your citations... (" & _
-                Round(100 * citationNumber / marks.count) & "%)")
+                Round(100 * citationNumber / marks.Count) & "%)")
         End If
 
         Set thisField = mark
@@ -1117,15 +1118,15 @@ Function refreshDocument(Optional openingDocument As Boolean = False) As Boolean
             End If
             
             Dim range As range
-            Set range = thisField.result
+            Set range = thisField.Result
             
             ' Get font used at start of bibliography
             range.Collapse (wdCollapseStart)
             
             Dim currentFontName As String
             Dim currentSize As Long
-            currentFontName = range.Font.name
-            currentSize = range.Font.size
+            currentFontName = range.Font.Name
+            currentSize = range.Font.Size
 
             ' Get paragraph used at start of bibliography
             Dim currentParagraphStyle As String 'MabEntwickeltSich
@@ -1133,13 +1134,13 @@ Function refreshDocument(Optional openingDocument As Boolean = False) As Boolean
             Dim currentParagraphSpaceAfter As Long
             Dim currentLineSpacingRule As Variant
 
-            currentParagraphStyle = range.style 'MabEntwickeltSich
+            currentParagraphStyle = range.Style 'MabEntwickeltSich
             currentParagraphSpaceBefore = range.ParagraphFormat.SpaceBefore
             currentParagraphSpaceAfter = range.ParagraphFormat.SpaceAfter
             currentLineSpacingRule = range.ParagraphFormat.LineSpacingRule
 
             ' Insert updated bibliography
-            Set range = thisField.result
+            Set range = thisField.Result
             ' Word 2013 dirty hack: We can not insert on the whole selection, we need to keep
             ' one character at the end of the selection
             If isWordRangeHackRequired Then
@@ -1148,7 +1149,7 @@ Function refreshDocument(Optional openingDocument As Boolean = False) As Boolean
             range.InsertFile (bibliography)
             ' Word 2013 dirty hack: Remove the last character
             If isWordRangeHackRequired Then
-                Set range = thisField.result
+                Set range = thisField.Result
                 range.Start = range.End - 1
                 range.Text = ""
             End If
@@ -1156,19 +1157,19 @@ Function refreshDocument(Optional openingDocument As Boolean = False) As Boolean
             ' Disable spell and grammar checking on the bibliography.
             ' This is done when the field is created in fnAddMark(), but the InsertFile() call
             ' resets this property of the Field result's range (at least on Mac Word 2011).
-            Set range = thisField.result
+            Set range = thisField.Result
             range.LanguageID = wdNoProofing
             
             ' Apply font to whole range
-            range.Font.name = currentFontName
-            range.Font.size = currentSize
+            range.Font.Name = currentFontName
+            range.Font.Size = currentSize
 
             ' Apply paragraph to whole range
             range.ParagraphFormat.SpaceBefore = currentParagraphSpaceBefore
             range.ParagraphFormat.SpaceAfter = currentParagraphSpaceAfter
             range.ParagraphFormat.LineSpacingRule = currentLineSpacingRule
 
-            range.style = currentParagraphStyle 'MabEntwickeltSich
+            range.Style = currentParagraphStyle 'MabEntwickeltSich
             
             ' Delete first character (is part of the first new paragraph of the RTF file)
             range.End = range.Start + 1
@@ -1230,3 +1231,4 @@ ExitFunction:
 
     Call showStatusBarMessage("")
 End Function
+
